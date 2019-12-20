@@ -174,7 +174,9 @@ static bool waitForIngredients (int id)
 
     /* TODO: insert your code here */
     for(int i=0;i<NUMINGREDIENTS;i++){
-        sh->fSt.ingredients[i]=0;
+        if(i !=id){
+            sh->fSt.ingredients[i]=0;
+        }
     }
 
     saveState(nFic,&sh->fSt);
@@ -205,7 +207,7 @@ static bool waitForIngredients (int id)
  */
 static void rollingCigarette (int id)
 {
-    double rollingTime = 10.0 + normalRand(10.0);
+    double rollingTime = 100.0 + normalRand(30.0);
 
     if (semDown (semgid, sh->mutex) == -1)  {                                                     /* enter critical region */
         perror ("error on the up operation for semaphore access (SM)");
@@ -215,7 +217,6 @@ static void rollingCigarette (int id)
     /* TODO: insert your code here */
     sh->fSt.st.smokerStat[id]=ROLLING;
     saveState(nFic,&sh->fSt);
-    sleep(rollingTime);
 
     if (semUp (semgid, sh->mutex) == -1) {                                                         /* exit critical region */
         perror ("error on the down operation for semaphore access (SM)");
@@ -223,6 +224,10 @@ static void rollingCigarette (int id)
     }
    
     /* TODO: insert your code here */
+     if (rollingTime>0)
+    {
+        usleep(rollingTime);
+    }
 
     semUp(semgid,sh->waitCigarette);
 }
@@ -237,7 +242,7 @@ static void rollingCigarette (int id)
  */
 static void smoke(int id)
 {
-    double smokingTime = 10.0 + normalRand(10.0);
+    double smokingTime = 100.0 + normalRand(30.0);
     if (semDown (semgid, sh->mutex) == -1)  {                                                     /* enter critical region */
         perror ("error on the up operation for semaphore access (SM)");
         exit (EXIT_FAILURE);
@@ -245,7 +250,6 @@ static void smoke(int id)
 
     /* TODO: insert your code here */
     sh->fSt.st.smokerStat[id]=SMOKING;
-    sleep(smokingTime);
     sh->fSt.nCigarettes[id]++;
     saveState(nFic,&sh->fSt);
 
@@ -255,6 +259,10 @@ static void smoke(int id)
     }
 
     /* TODO: insert your code here */
+    if (smokingTime>0)
+    {
+        usleep(smokingTime);
+    }
 
 
 }

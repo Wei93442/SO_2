@@ -143,6 +143,7 @@ static bool waitForIngredient(int id)
     sh->fSt.st.watcherStat[id]=WAITING_ING;
     saveState(nFic,&sh->fSt);
 
+
     if (semUp (semgid, sh->mutex) == -1) {                                                         /* exit critical region */
         perror ("error on the down operation for semaphore access (WT)");
         exit (EXIT_FAILURE);
@@ -197,29 +198,65 @@ static int updateReservations (int id)
     sh->fSt.st.watcherStat[id]=UPDATING;   
     sh->fSt.reserved[id]++;
     saveState(nFic,&sh->fSt);
+    sleep(1);
 
+    
     int counter=0;
-    for (int i = 0; i < NUMINGREDIENTS; i++)
-    {
-        counter=counter+sh->fSt.reserved[i];
+    /*int smokerId=ret;
+    for ( int i=0;i< NUMINGREDIENTS; i++)
+    {   
+
+        if(i!=id && sh->fSt.reserved[i]>0) {
+            counter++;
+        }
+
+        if (counter==1&&i!=id && sh->fSt.reserved[i]==0)
+        {
+            smokerId=i;
+        }
     }
-    if (counter%2==0 )
-    {
-       for (int i = 0; i < NUMSMOKERS;i++)
-       {
-           if (sh->fSt.st.smokerStat[i]!=0)
-           {
-               break;
-           }else
-                ret=random()%NUMSMOKERS;
-       }
+
+    if(smokerId==-1){
+        sleep(1);
+    }*/
+
+
+
+    for (int s = 0; s < NUMSMOKERS; s++) {
+
+        if (s == id) {
+            continue;
+        }
+
+        for (int i = 0; i < NUMINGREDIENTS; i++) {
+
+            if (sh->fSt.reserved[i] > 0) {
+                counter++;
+            }
+        }
+
+        if (counter == 2) {
+            ret = s;
+            break;
+        }
+
     }
+
+    if(ret!=-1){
+        for (int i = 0; i < NUMINGREDIENTS; i++) {
+            if (i != ret) {
+                sh->fSt.reserved[i]=0;
+            }
+        }
+    }
+ 
+    
+    printf("smokerId=%d\n",ret );
 
     if (semUp (semgid, sh->mutex) == -1) {                                                         /* exit critical region */
         perror ("error on the down operation for semaphore access (WT)");
         exit (EXIT_FAILURE);
     }
-
     return ret;
 }
 
