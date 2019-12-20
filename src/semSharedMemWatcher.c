@@ -197,49 +197,27 @@ static int updateReservations (int id)
     /* TODO: insert your code here */
     sh->fSt.st.watcherStat[id]=UPDATING;   
     sh->fSt.reserved[id]++;
-    saveState(nFic,&sh->fSt);
-    sleep(1);
-
+    saveState(nFic,&sh->fSt);  
     
     int counter=0;
-    /*int smokerId=ret;
-    for ( int i=0;i< NUMINGREDIENTS; i++)
-    {   
 
-        if(i!=id && sh->fSt.reserved[i]>0) {
+    int SmokerId=-1;
+
+    for (int i = 0; i < NUMINGREDIENTS; i++) {
+        if (i == id) {
+            continue;
+         }
+
+        if (sh->fSt.reserved[i] > 0) {
             counter++;
+        }else{
+            SmokerId=i;
         }
 
-        if (counter==1&&i!=id && sh->fSt.reserved[i]==0)
-        {
-            smokerId=i;
-        }
     }
 
-    if(smokerId==-1){
-        sleep(1);
-    }*/
-
-
-
-    for (int s = 0; s < NUMSMOKERS; s++) {
-
-        if (s == id) {
-            continue;
-        }
-
-        for (int i = 0; i < NUMINGREDIENTS; i++) {
-
-            if (sh->fSt.reserved[i] > 0) {
-                counter++;
-            }
-        }
-
-        if (counter == 2) {
-            ret = s;
-            break;
-        }
-
+    if (counter == 1) {
+        ret = SmokerId;
     }
 
     if(ret!=-1){
@@ -249,9 +227,6 @@ static int updateReservations (int id)
             }
         }
     }
- 
-    
-    printf("smokerId=%d\n",ret );
 
     if (semUp (semgid, sh->mutex) == -1) {                                                         /* exit critical region */
         perror ("error on the down operation for semaphore access (WT)");
